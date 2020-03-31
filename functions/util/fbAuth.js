@@ -10,6 +10,7 @@ module.exports = (req, res, next) => {
     return res.status(403).json({ error: 'Unauthorized'});
   }
 
+  // console.log(req.headers.authorization)
   admin.auth().verifyIdToken(idToken)
     .then(decodedToken => {
       req.user = decodedToken;
@@ -21,10 +22,12 @@ module.exports = (req, res, next) => {
     })
     .then(data => {
       req.user.handle = data.docs[0].data().handle;
+      req.user.imageUrl = data.docs[0].data().imageUrl;
       return next();
     })
     .catch(err => {
       console.error('Error while verifying token', err);
-      return res.status(403).json(err);
+      // changed this from (err) to ({ error: err.code })
+      return res.status(403).json({ error: err.code });
     })
 }
